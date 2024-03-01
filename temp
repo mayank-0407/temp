@@ -24,7 +24,7 @@ if n>m
 
     z=c*sol;
     [bfs,idx]=max(z)
-    sol(idx,:) 
+    sol(:,idx) 
 else
     error('N is Less than M')
 end
