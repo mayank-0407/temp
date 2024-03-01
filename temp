@@ -1,8 +1,8 @@
 A=[2 3 -1 4;1 -2 6 -7];
 b=[8;-3];
 c=[2 3 4 7];
-m=size(A,1); % no of equations 1 means rows
-n=size(A,2); % no of variables 2 means cols
+m=size(A,1);
+n=size(A,2);
 if n>m
     nCm=nchoosek(n,m);
 
@@ -10,10 +10,10 @@ if n>m
     count=0;
     sol=[]
     for i=1:nCm
-        y=zeros(n,1); %array of 0 in col only wihtout 1 it will create a matrix of n,n
+        y=zeros(n,1); 
         A1=A(:,p(i,:));
         X=inv(A1)*b;
-        if all(X>=0 & X~=inf & X~=-inf) % all is used to check these conditions in every element of the vector used
+        if all(X>=0 & X~=inf & X~=-inf) 
             count=count+1;
             y(p(i,:))=X;
             sol=[sol y];
@@ -24,7 +24,7 @@ if n>m
 
     z=c*sol;
     [bfs,idx]=max(z)
-    sol(idx,:) % fetching the sol from solution
+    sol(idx,:) 
 else
     error('N is Less than M')
 end
