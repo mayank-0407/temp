@@ -1,104 +1,64 @@
-A=[2 3 -1 4;1 -2 6 -7];
-b=[8;-3];
-c=[2 3 4 7];
-m=size(A,1);
-n=size(A,2);
-if n>m
-    nCm=nchoosek(n,m);
+%simplex
+c=[2 5 0 0 0 0]; % 0 in last to avoid error in zjcj 
+b=[24;21;9]; 
+a=[1 4 1 0 0;3 1 0 1 0;1 1 0 0 1]; 
+bv=[3 4 5]; A=[a b]; 
+zj_cj=c(bv)*A-c; 
+simplex_table=[A;zj_cj]
+var={'x1','x2','s1','s2','s3','sol'}; 
+array2table(simplex_table,'VariableNames',var) RUN=true while(RUN) 
+zc=zj_cj(1:end-1); if any(zc<0)
+fprintf('The current BFS is not optimal') 
+[enter_var,piv_col]=min(zc); 
+pivot_col=A(:,piv_col); 
+sol=A(:,end); 
+if all(pivot_col<=0) 
+error('Unbounded Solution'); 
+else for i=1:size(A,1) 
+if(pivot_col(i)>0) 
+ratio(i)=sol(i)/pivot_col(i); 
+else ratio(i)=inf; end end 
+[leaving_var,pivot_row_index]=min(ratio); 
+pivot_row=A(pivot_row_index,:); end 
+bv(pivot_row_index)=piv_col; %% changing bv next
+pvt_element=A(pivot_row_index,piv_col) 
+A(pivot_row_index,:)=A(pivot_row_index,:)/pvt_element 
+for i=1:size(A,1) 
+if i~=pivot_row_index 
+A(i,:)=A(i,:)-A(i,piv_col)*A(pivot_row_index,:) % new_value=old_value-corrpivotcolval*corrpivotrowval/pivotable
+end end zj_cj=c(bv)*A-c; 
+next_table=[A;zj_cj]; 
+array2table(simplex_table,'VariableNames',var) 
+else RUN=false 
+fprintf('The table is optimal') end end
 
-    p=nchoosek(1:n,m);
-    count=0;
-    sol=[]
-    for i=1:nCm
-        y=zeros(n,1); 
-        A1=A(:,p(i,:));
-        X=inv(A1)*b;
-        if all(X>=0 & X~=inf & X~=-inf) 
-            count=count+1;
-            y(p(i,:))=X;
-            sol=[sol y];
-        end
-    end
-    sol
-    count;
-
-    z=c*sol;
-    [bfs,idx]=max(z)
-    sol(:,idx) 
-else
-    error('N is Less than M')
-end
-% Graph
-clc 
-clear all 
-% phase 1 Input parameter
-a=[1 2;1 1;1 -2]; 
-b=[10;6;1]; 
-c=[2 1];
-
-%phase 2 Plot these lines
-x1=0:max(b); 
-x21=(b(1)-a(1,1)*x1)/a(1,2); 
-x22=(b(2)-a(2,1)*x1)/a(2,2); 
-x23=(b(3)-a(3,1)*x1)/a(3,2); 
-x21=max(0,x21); 
-x22=max(0,x22); 
-x23=max(0,x23); 
-plot(x1,x21,'r',x1,x22,'b',x1,x23,'k'); 
-% we can use hold if we want to write 3 plots
-title('Question 1') 
-xlabel('x1'); 
-ylabel('x2'); 
-legend('x1+x2=10','x1+x2=6','x1-2x2=1') 
-
-%phase 3  Extracting Intersection Points
-% line 1 points 
-c1=find(x1==0);
-c2=find(x21==0); 
-line1=[x1([c1 c2]);x21([c1 c2])]' 
-%line 2 points 
-c3=find(x1==0); 
-c4=find(x22==0); 
-line2=[x1([c3 c4]);x22([c3 c4])]'
-%line 3 points 
-c5=find(x1==0); 
-c6=find(x23==0); 
-line3=[x1([c5 c6]);x23([c5 c6])]' 
-% takes transpose to combine these vectors and ' is for transpose
-newLine=[line1;line2;line3]; 
-corPts=unique(newLine,'rows')
-
-%Phase 4: Solving Systems of Equations
-%ad loop i=1 and j=i+1
-sol=[0;0]
-for i=1:size(a,1)  % this size is the size of row
-    for j=i+1:size(a,1)
-        a1=a([i j],:); 
-        b1=b([i j]); 
-        x=inv(a1)*b1
-        sol=[sol,x]
-    end
-end
-pt=sol'
-% Phase 5: Combining All Points
-allpt=[corPts;pt]
-points=unique(allpt,'rows')
-
-% phase 6 feasible region
-for i=1:size(points,1)
-const1(i) = a(1,1)*points(i,1)+a(1,2)*points(i,2) -b(1)
-const2(i) = a(2,1)*points(i,1)+a(2,2)*points(i,2)-b(2)
-const3(i) = a(3,1)*points(i,1)+a(3,2)*points(i,2)-b(3)
-end
-
-s1=find(const1>0);
-s2=find(const2>0);
-s3=find(const3>0);
-s=unique([s1,s2,s3]);
-points(s,:)=[]
-
-% Phase 7: Finding the Optimal Point
-z=points*c';
-[obj,idxx]=max(z)
-x1=points(idxx,1)
-x2=points(idxx,2)
+%lcs
+c=[2 10 4 5;6 12 8 11;3 9 5 7];
+a=[12 25 20];
+b=[25 10 15 5];
+m=size(c,1);
+n=size(c,2);
+if sum(b)==sum(a)
+fprintf('balanced')else
+fprintf('Not balanced')
+if sum(a)<sum(b)
+c(end+1,:)=zeros(1,n);
+a(end+1)=sum(b)-sum(a);
+m=m+1;else
+c(:,end+1)=zeros(1,m);
+b(end+1)=sum(a)-sum(b);
+n=n+1; end end X=zeros(m,n);
+orig_c=c; for i=1:m for j=1:n
+cpq=min(min(c)); 
+if cpq==inf break end
+[p1,q1]=find(cpq==c);
+p=p1(1); q=q1(1);
+X(p,q)=min(a(p),b(q));
+if min(a(p),b(q))==a(p)
+b(q)=b(q)-a(p); a(p)=a(p)-X(p,q);
+c(p,:)=inf; else
+a(p)=a(p)-b(q);
+b(q)=b(q)-X(p,q);
+c(:,q)=inf end end end SUM=0; X
+for i=1:m for j=1:n
+SUM=SUM+(X(i,j)*orig_c(i,j)); end end
